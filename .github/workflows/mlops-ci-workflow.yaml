@@ -58,7 +58,7 @@ jobs:
         run: |
           docker stop mlflow-server
           docker rm mlflow-server
-          docker rmi ghcr.io/mlflow/mlflow:latestx
+          docker rmi ghcr.io/mlflow/mlflow:latest
 
 
 
