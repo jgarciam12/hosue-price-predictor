@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@2
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11.5'
 
@@ -28,4 +28,5 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/
+
 
