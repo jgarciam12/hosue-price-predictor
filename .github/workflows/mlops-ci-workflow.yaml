@@ -1,17 +1,20 @@
-name: Data CI
+name: MLops CI
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'src/data/**'
-      - 'src/features/**'
-      - 'data/raw/**'
+  pull_request:
+    branches:
+      - main
 
 jobs:
+
+  # 🧩 1️⃣ Data Processing & Feature Engineering
   data_pipeline:
+    name: Data Processing & Feature Engineering
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,20 +42,12 @@ jobs:
             --output data/processed/featured_house_data.csv \
             --preprocessor models/trained/preprocessor.pkl
 
-name: Model Training CI
-
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/models/**'
-      - 'configs/**'
-      - 'data/processed/**'
-
-jobs:
-  train_model:
+  # 🤖 2️⃣ Model Training (Depende del job anterior)
+  model_training:
+    name: Model Training with MLflow
     runs-on: ubuntu-latest
+    needs: data_pipeline  # 👈 se ejecuta solo si el job anterior tuvo éxito
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -89,21 +84,12 @@ jobs:
           docker rm mlflow-server
           docker rmi ghcr.io/mlflow/mlflow:latest
 
-
-name: Deploy CI
-
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'Dockerfile'
-      - 'src/api/**'
-      - '.github/workflows/deploy-ci.yml'
-
-jobs:
-  build_and_push:
+  # 🐳 3️⃣ Docker Build & Push (Depende del entrenamiento)
+  docker_deploy:
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
+    needs: model_training  # 👈 se ejecuta solo si el entrenamiento fue exitoso
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
